@@ -45,6 +45,7 @@ Logstash 你可以想像是一個 數據處理的地方 他主要處理如下圖
 
 # Logstash Config Pattern
 
+這裡我們先介紹各個區塊的logstash  設定 ，最後再給大家一個完整的例子
 
 ### input
 
@@ -103,16 +104,154 @@ input {
 * geoip: 將欄位的資訊轉換成地理欄位的資料
 * date: 將我們從grok拿到的日期欄位，變成日期欄位格式以及設定他相對應的時區
 
+**grok**
+
+Grok Patterns 有兩種寫法 
+
+第一種寫法可以參考
+[Grok Patterns](https://github.com/logstash-plugins/logstash-patterns-core/blob/master/patterns/grok-patterns)
+以及他的Type 可以參考
+[FieldType](https://www.elastic.co/guide/en/elasticsearch/reference/current/mapping-types.html)
+* %{Pattern名稱:欄位名稱:型別(可以填 預設是text)}
+ > %{POSINT:procesid:int}
+* (?<欄位名稱>正規表示式) 
+  > (?<request>[A-Z\-a-z]+)  
+  > (?<useragentOS>[iOS|Android|None]*) 
+
+假設我們有一個log得一行資料我們想要做測試
+
+原始資料如下
+````
+2018-11-27 11:35:10,105 [7] [INFO] [AppDataManager] [PERFORMANCE][BankingManager][150ms]
+````
+
+我們寫了一段Grok pattern
+
+````
+%{TIMESTAMP_ISO8601:logdate} (\[%{POSINT:procesid:int}\]) \[(?<level>(INFO|DEBUG|WARNING|ERROR))\] \[(?<logger>[A-Z\-a-z .]+)\] \[(?<PERFORMANCE>[A-Z\-a-z]+)\]\[(?<method>[A-Z\-a-z . /=?0-9:()%]+)\]\[%{NUMBER:performancetime:int}ms\]%{GREEDYDATA:messages}
+````
+我們可以用下面這兩個網站來測試,或是你可以用kibana 上面的Tab 
+Dev Tools => Grok Debugger 來撰寫
+
+![image](../images/Logstash%20Config/grokdebug.png)
+
+[grokdebug](https://grokdebug.herokuapp.com/)
+
+[grokconstructor](http://grokconstructor.appspot.com/do/match)
+
+測試成功後應該就會將欄位成功爬出來
+
+那我們在看兩個簡單的例子 grok
+
+**break_on_match => false**
+
+代表是每一個pattern都會依照順序從上到下跑一次，第一行從
+message先爬 是因為從filebeat 來預設的欄位都是message ，接著我們可以定義像是我們剩餘的欄位長什麼樣子
+
+用途:
+> 用於格式類似的pattern
+
+ex:
+像這兩筆資料 只有最後的欄位不同 我們就可以考慮把他用這個寫法處理
+
+````
+2018-11-27 10:47:52,331 [27] [INFO] [PageBaseController][REQUEST][/page-not-found][GET][127.0.0.1][hkczyqbnpz4ewyhjq5csnsxe]
+2018-11-27 10:47:52,331 [27] [INFO] [PageBaseController][REQUEST][/request][GET][127.0.0.1][memberCode][hkczyqbnpz4ewyhjq5csnsxe]
+````
+
+
+````
+grok{
+    break_on_match => false			
+    match => {"message" => "^%{TIMESTAMP_ISO8601:logdate} (\[%{POSINT:procesid:int}\]) \[(?<level>(INFO|DEBUG|WARNING|ERROR))\] \[(?<logger>[A-Z\-a-z .]+)\]%{GREEDYDATA:messagebody}$"}
+    match => {"messagebody" => "^\[(?<request>[A-Z\-a-z]+)\]\[(?<method>[A-Z\-a-z . /=?0-9\[\]:()%]+)\]\[(?<httpmethod>[A-Z\-a-z /.\-]+)\]\[%{IP:clientip}\]%{GREEDYDATA:requestMessage}$"}
+    
+}
+````
+
+**break_on_match => true**
+
+這就是你只要match到就會把他break掉,我會建議如果設定成true,盡量只用一個 match,來避免 假設你寫了
+Match A,B,C,D這四種格式的Pattern,他可能每次最多都跑四次,會影響效能
+
+````
+grok{
+    break_on_match => true			
+    match => {"message" => "^%{TIMESTAMP_ISO8601:logdate} (\[%{POSINT:procesid:int}\]) \[(?<level>(INFO|DEBUG|WARNING|ERROR))\] \[(?<logger>[A-Z\-a-z .]+)\] \[(?<Feature>(FEATURE))\]\[(?<method>[A-Z\-a-z . /=?0-9:()]+)\]\[(?<result>[A-Z\-a-z . /=?0-9:()]+)\]\[(?<membercode>[A-Z\-a-z . /=?0-9:()]*)\]%{GREEDYDATA:messages}"}
+}
+````
+
+**mutate**
+
+用法像下面這樣
+
+> add_tag => [ "%{subcategory}"  ] =>  %{欄位名稱的值}
+> lowercase => [ "欄位名稱" ]  將值全部小寫
+>  rename => { "useragentOS" => "[useragent][OS]"	} 換欄位名稱 => 這樣寫會變成{'useragent': {"OS": "iOS"}} 格式
+````
+mutate {
+     remove_field => [ "logdate","message" ]
+     remove_tag => ["beats_input_codec_plain_applied", beats_input_codec_multiline_applied"]
+     add_tag => [ "%{subcategory}"  ]
+     lowercase => [ "method" ]
+     rename => { "useragentOS" => "[useragent][OS]"	}
+}
+````
+
+**date**
+
+主要是讓他可以做時區的轉換  以及將轉換成日期格式
+
+>我們可以針對爬出來的欄位 取代@timestamp, @timestamp預設是log input到es的時間
+>timezone是指定他這個log是哪一個時區
+>match你可以到哪一個格式 ex: ISO8601
+
+````
+date {
+	timezone => "UTC"
+	match => ["logdate", "yyyy-MM-dd HH:mm:ss"]
+	target => "@timestamp"
+}
+````
+
+**geoip**
+
+先指定欄位 以及目標的欄位，然後因為[geoip][coordinates] 這欄位需要預設是浮點數
+我們要另外做處理，
+
+````
+geoip {
+	source => "clientip"
+	target => "geoip"
+	add_field => [ "[geoip][coordinates]", "%{[geoip][longitude]}" ]
+	add_field => [ "[geoip][coordinates]", "%{[geoip][latitude]}"  ]
+}
+mutate {
+	convert => [ "[geoip][coordinates]", "float"]
+    convert => [ "[geoip][location]", "geo_point"]
+}
+````
+
+如果我們要在kibana上面看到地圖，除了上面的設定，一定要將裡面的[geoip][location]設定成geo_point 型態才可以使用
+
+![image](../images/Logstash%20Config/map.png)
+
+### output 
+
+
+### logstash example code
 
 
 
 
 
 
-reference:
+### reference:
 
 https://www.elastic.co/blog/removal-of-mapping-types-elasticsearch
 
 https://www.elastic.co/blog/do-you-grok-grok
 
 https://www.elastic.co/guide/en/logstash/current/deploying-and-scaling.html
+
+https://blog.johnwu.cc/article/elk-logstash-grok-filter.html
