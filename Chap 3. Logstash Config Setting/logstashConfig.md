@@ -103,7 +103,7 @@ input {
 * clone: 複製一份相同的資料
 * geoip: 將欄位的資訊轉換成地理欄位的資料
 * date: 將我們從grok拿到的日期欄位，變成日期欄位格式以及設定他相對應的時區
-
+* kv: key value => 你可以根據某一個格式 將類似json的格式拆分出來，不過不是很建議使用這種方法，因為這樣算是動態欄位 ，有可能會對效能造成影響 如果資料量大的話
 **grok**
 
 Grok Patterns 有兩種寫法 
@@ -238,6 +238,23 @@ mutate {
 
 ### output 
 
+**預設index都要是小寫**
+>ww代表周 ,+xxxx 代表年度
+>2018.51 代表51周
+>%{tempIndex} 代表是使用之前我們爬出來的欄位
+
+
+````
+output {
+  elasticsearch {
+    hosts => ["http://localhost:9200"]
+    index => "%{tempIndex}-%{+xxxx.ww}"
+    document_type => "%{[@metadata][type]}"
+   }
+}
+
+````
+
 
 ### logstash example code
 
@@ -255,3 +272,5 @@ https://www.elastic.co/blog/do-you-grok-grok
 https://www.elastic.co/guide/en/logstash/current/deploying-and-scaling.html
 
 https://blog.johnwu.cc/article/elk-logstash-grok-filter.html
+
+https://doc.yonyoucloud.com/doc/logstash-best-practice-cn/filter/kv.html
