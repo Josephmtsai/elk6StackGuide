@@ -2,7 +2,7 @@
 
 ### What is Elastic Stack ?
 
-- ELK Stack 是從 5 版開始叫正式名稱 ，5 版之前都統稱為 ELK,並沒有包含 beats
+- ELK Stack 是從 5 版開始的正式名稱 ，5 版之前都統稱為 ELK,並沒有包含 beats
 - ELK Stack 是由這些 ElasticSearch ,Kibana,Logstash ,beats (metricbeats,filebeat,winlogbeat....)組合而成
 - Elasticsearch : A distributed, RESTful search and analytics database
 - Logstash : Ingest data, processing, and send it to elasticsearch
