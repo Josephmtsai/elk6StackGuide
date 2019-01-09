@@ -141,6 +141,10 @@ Dev Tools => Grok Debugger 來撰寫
 
 測試成功後應該就會將欄位成功爬出來
 
+**請在每一個grok pattern前後加上^ 以及$ 開始以及結束符號**
+
+為什麼要加 請參考:[Grok 效能](https://www.elastic.co/blog/do-you-grok-grok)
+
 那我們在看兩個簡單的例子 grok
 
 **break_on_match => false**
@@ -240,11 +244,8 @@ mutate {
 
 **預設index都要是小寫**
 >ww代表周 ,+xxxx 代表年度
-
 >2018.51 代表51周
-
 >%{tempIndex} 代表是使用之前我們爬出來的欄位
-
 >%{[@metadata][type]} =>此欄位為預設的filebeat送進來的欄位 預設只有一個值(elk6版)
 
 
@@ -261,9 +262,10 @@ output {
 ````
 
 
-### logstash example code
+### logstash Structure code
 
 
+[Mutiple Config File](https://www.elastic.co/blog/logstash-configuration-tuning)
 
 
 
@@ -279,3 +281,9 @@ https://www.elastic.co/guide/en/logstash/current/deploying-and-scaling.html
 https://blog.johnwu.cc/article/elk-logstash-grok-filter.html
 
 https://doc.yonyoucloud.com/doc/logstash-best-practice-cn/filter/kv.html
+
+http://www.51niux.com/?id=205
+
+https://qbox.io/blog/parsing-logs-using-logstash?utm_source=qbox.io&utm_medium=article&utm_campaign=logstash-5-0-monitoring-api-node-plugin-stats-hot-threads
+
+https://www.elastic.co/guide/en/logstash/current/configuration-file-structure.html
