@@ -23,7 +23,31 @@ Redis Dashboard
 
 ### Linux Setting
 
-透過 我們可以知道 預設只有 system 這個模組被開啟
+首先我們先要編輯 去設定輸出到 es 的位置
+
+```
+vi /etc/metricbeat/metricbeat.yml
+```
+
+修改下面這區塊
+
+```
+#-------------------------- Elasticsearch output ------------------------------
+output.elasticsearch:
+  # Array of hosts to connect to.
+  hosts: ["xxxxx:9200"]
+
+  # Optional protocol and basic auth credentials.
+  #protocol: "https"
+  #username: "elastic"
+  #password: "changeme"
+```
+
+> 如果我們希望輸出到 elasticsearch 後的欄位他有自己的名稱(beat.name = qat or uat)
+> 我們可以透過設定 name 他就可以修改成特別的 beat.name (預設是 server name)
+> ![image](../images/metricbeat/general.png)
+
+接著透過 我們可以知道 預設只有 system 這個模組被開啟
 
 ```
 metricbeat modules list
@@ -39,6 +63,66 @@ metricbeat modules enable elasticsearch
 metricbeat modules enable redis
 ```
 
+接著我們可以去/etc/metricbeat/modules.d 去看
+我們 enable 的 module 是不是副檔名變成.yml
+
+![modulesetting](../images/metricbeat/modulesetting.png)
+
+我們舉個 redis 的 setting 來看
+
+```
+vi redis.yml
+```
+
+接著設定我們的 redis config
+
+```
+# Module: redis
+# Docs: https://www.elastic.co/guide/en/beats/metricbeat/6.5/metricbeat-module-redis.html
+
+- module: redis
+  metricsets:
+    - info
+    - keyspace
+  period: 60s
+
+  # Redis hosts
+  hosts: ["xxxx:8188"]
+
+  # Network type to be used for redis connection. Default: tcp
+  #network: tcp
+
+  # Max number of concurrent connections. Default: 10
+  #maxconn: 10
+
+  # Redis AUTH password. Empty by default.
+  password: Cache
+
+- module: redis
+  metricsets:
+    - info
+    - keyspace
+  period: 10s
+
+  # Redis hosts
+  hosts: ["xxxx:6666"]
+
+  # Network type to be used for redis connection. Default: tcp
+  #network: tcp
+
+  # Max number of concurrent connections. Default: 10
+  #maxconn: 10
+
+  # Redis AUTH password. Empty by default.
+  password: message
+
+
+
+```
+
+> 這裡代表是 我們在同一台 server 安裝了多個 redis 的 instance
+> period: 我們可以設定他幾秒打一次到 redis
+
 ## Metricbeat Export Dashboard to ELK
 
 簡單來講就是透過任何一個安裝好的 metricbeat agent 把裡面內建的 dashboard 匯出到 elk
@@ -52,3 +136,7 @@ metricbeat setup -e `-E output.elasticsearch.host=[xxxx:9200] -E setup.kibana.ho
 成功後應該會再 elk 看面看到
 MetricBeat Dashboard List:
 ![image](../images/metricbeat/dashboard.png)
+
+### Reference:
+
+https://www.elastic.co/guide/en/beats/devguide/6.x/import-dashboards.html
