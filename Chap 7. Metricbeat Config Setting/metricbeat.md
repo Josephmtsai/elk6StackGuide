@@ -123,6 +123,16 @@ vi redis.yml
 > 這裡代表是 我們在同一台 server 安裝了多個 redis 的 instance
 > period: 我們可以設定他幾秒打一次到 redis
 
+設定完不要忘記重開 metricbeat
+
+```
+systemctl restart metricbeat.service
+```
+
+接著我們應該就可以在 elk 裡面看到資料，如果沒有 Dashboard 請參考下一節的 export dashboard to elk
+
+![image](../images/metricbeat/redisdashboard.png)
+
 ## Metricbeat Export Dashboard to ELK
 
 簡單來講就是透過任何一個安裝好的 metricbeat agent 把裡面內建的 dashboard 匯出到 elk
