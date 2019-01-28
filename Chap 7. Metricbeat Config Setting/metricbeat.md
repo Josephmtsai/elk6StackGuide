@@ -21,6 +21,38 @@ Redis Dashboard
 
 ### Windows Setting
 
+首先去我們安裝好的位置 修改 metricbeat.yml
+
+```
+#================================ General =====================================
+
+# The name of the shipper that publishes the network data. It can be used to group
+# all the transactions sent by a single shipper in the web interface.
+name: "Testing"
+#-------------------------- Elasticsearch output ------------------------------
+output.elasticsearch:
+  # Array of hosts to connect to.
+  hosts: ["xxxxx:9200"]
+```
+
+![image](../images/metricbeat/windowsmetricbeat.png)
+
+接著透過 我們可以知道 預設只有 system 以及 windows 這個模組被開啟
+
+```
+metricbeat modules list
+```
+
+![image](../images/metricbeat/windowsmetricbeatlist.png)
+
+所以我們需要 enable 內建的一些模組必須要下以下的指令
+
+```
+metricbeat modules enable logstash
+metricbeat modules enable elasticsearch
+metricbeat modules enable redis
+```
+
 ### Linux Setting
 
 首先我們先要編輯 去設定輸出到 es 的位置
@@ -63,18 +95,12 @@ metricbeat modules enable elasticsearch
 metricbeat modules enable redis
 ```
 
-接著我們可以去/etc/metricbeat/modules.d 去看
+接著我們可以去安裝的路徑底下的 modules.d 去看
 我們 enable 的 module 是不是副檔名變成.yml
 
-![modulesetting](../images/metricbeat/modulesetting.png)
+![modulesetting](../images/metricbeat/windowsmodulesetting.png)
 
-我們舉個 redis 的 setting 來看
-
-```
-vi redis.yml
-```
-
-接著設定我們的 redis config
+![image](../images/metricbeat/systemsetting.png)
 
 ```
 # Module: redis
@@ -150,3 +176,5 @@ MetricBeat Dashboard List:
 ### Reference:
 
 https://www.elastic.co/guide/en/beats/devguide/6.x/import-dashboards.html
+
+https://www.itread01.com/content/1532958197.html
