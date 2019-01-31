@@ -254,7 +254,7 @@ filter {
 > 因為 message 這原始資料通常都不一定需要 而且很占空間
 > \_grokparsefailure 代表是 grok parse 有問題 這時候可以保留 message 這個欄位
 
-** 根據上面的例子，最主要是 index_prefix 用來區別各種不同的 index 要走哪一些檔案**
+**根據上面的例子，最主要是 index_prefix 用來區別各種不同的 index 要走哪一些檔案**
 
 這樣我們就可以設計 filebeat 可以讓收集各種不同的 index
 

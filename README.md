@@ -20,6 +20,13 @@
 - Elasticsearch easy to extend the cluster and Logstash also easy to extend the cluster for large data input and store.
 - Kibana Provide a easy way to display data and store the dashboard ,monitor the system information
 
+
+- Chap 3 Logstash Config
+
+   - [Logstash Config](logstash/logstatchConfig.md)
+   - [Logstash Config Structure](logstash/logstatchConfigStructure.md)
+
+
 ## Reference:
 
 https://elkguide.elasticsearch.cn/
