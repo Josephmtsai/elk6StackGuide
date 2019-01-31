@@ -23,8 +23,8 @@
 
 - Chap 3 Logstash Config
 
-   - [Logstash Config](logstash/logstatchConfig.md)
-   - [Logstash Config Structure](logstash/logstatchConfigStructure.md)
+   - [Logstash Config](../logstash/logstatchConfig.md)
+   - [Logstash Config Structure](../logstash/logstatchConfigStructure.md)
 
 
 ## Reference:
