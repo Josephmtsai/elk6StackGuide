@@ -417,6 +417,9 @@ automating-report-generation.html)
 
 當前面設定都設定好後可以用這個來模擬我們的結果
 
+![image](../../images/Kibana/simulate.png)
+![image](../../images/Kibana/simulate2.png)
+
 如果要看更多請去官方看他的設定
 
 # Referenece:
