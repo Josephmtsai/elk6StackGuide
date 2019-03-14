@@ -417,10 +417,6 @@ automating-report-generation.html)
 
 當前面設定都設定好後可以用這個來模擬我們的結果
 
-![](/assets/simulate.png)
-
-![](/assets/simulate results.png)
-
 如果要看更多請去官方看他的設定
 
 # Referenece:
