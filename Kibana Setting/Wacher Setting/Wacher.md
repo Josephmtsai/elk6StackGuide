@@ -328,6 +328,52 @@ chain: 用來自由組合使用上面三種類型組成的多個 input
     }
 ```
 
+### Email With Attachment
+
+這裡要特殊說明一下 我們希望做到的事情 就是 Auto Generate Report from ELK Dashboard, 並且寄信給 User
+![image](../../images/Kibana/generateReport.png)
+
+[參考](https://www.elastic.co/guide/en/kibana/current/
+automating-report-generation.html)
+
+1. 我們要把 上圖的網址 copy 起來
+
+2. 設定 wacher job, 看你要多久跑一次
+
+3. 設定重試的次數 以及 帳號密碼(此帳號一定要有 report_user 的權限 不然會失敗)
+
+```
+  "actions" : {
+    "email_admin" : {
+      "email": {
+        "to": "xxxx,
+        "subject": "Error Monitoring Report",
+        "attachments" : {
+          "error_report.pdf" : {
+            "reporting" : {
+              "url": "dashboard裡面點下report copy那個url ",
+              "retries":6,
+              "interval":"10s",
+              "auth":{
+                "basic":{
+                  "username":"帳號",
+                  "password":"密碼"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+```
+
+設定完後 回到 watcher 這裡 密碼會被蓋住，這裡無法被模擬
+
+![image](../../images/Kibana/generateReport2.png)
+
+這裡可以先設定短時間重複產生測試看看，避免無法模擬的狀況，成功後就可以收到信件內有附件
+
 ### Log
 
 這裡的 Log 都是產生在 es 的標準 Log ,並不會存在特定的 index 內
