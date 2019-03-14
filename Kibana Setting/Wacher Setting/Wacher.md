@@ -425,7 +425,3 @@ automating-report-generation.html)
 # Referenece:
 
 https://kknews.cc/zh-tw/other/89b5gzq.html
-
-```
-
-```
